@@ -7,7 +7,7 @@ class TrivialAI(BaseController):
     board: List[List[int]]
 
     def next_move(self) -> Optional[Direction]:
-        raise NotImplemented
+        pass
 
     def get_current_position(self) -> Position:
         raise NotImplemented

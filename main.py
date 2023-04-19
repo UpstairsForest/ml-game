@@ -18,8 +18,14 @@ board: Board = Board(display, board_data)
 board.draw()
 game_over = False
 while not game_over:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.display.quit()
+            pygame.quit()
+            exit()
     next_move = controller.next_move()
     if next_move:
         board.update_actor_position(controller.get_current_position())
         board.draw()
     clock.tick(fps)
+    print("tick")

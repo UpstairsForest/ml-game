@@ -1,21 +1,30 @@
 from typing import List
 
-import pygame
+import pygame.draw
 
+from config import green, red, gray, step
 from controllers.base_controller import Position
-from ui.squares import Square
 
 
 class Board:
-    display: pygame.Surface
-    board: List[List[Square]]
+    board: List[List[int]]
 
-    def __init__(self, display: pygame.Surface, board_data: List[List[int]]):
+    def __init__(self, display, board_data: List[List[int]]):
         self.display = display
-        self.board = [[Square(value) for value in row] for row in board_data]
+        self.board = board_data
 
     def draw(self):
-        raise NotImplemented
+        for i, row in enumerate(self.board):
+            for j, value in enumerate(row):
+                pygame.draw.rect(self.display, color=self._color_from_value(value), rect=[step//2 + j*step,step//2 + i*step, step, step])
+        pygame.display.update()
 
     def update_actor_position(self, position: Position):
         raise NotImplemented
+
+    def _color_from_value(self, value):
+        if value > 0:
+            return green
+        if value < 0:
+            return red
+        return gray

@@ -4,27 +4,23 @@ import json
 background_colour = (0, 0, 0)
 text_colour = (175, 175, 175)
 
-green = (150, 255, 70)
-red = (255, 100, 50)
-gray = (30, 30, 30)
+green = (41, 135, 31)
+red = (122, 20, 6)
+gray = (38, 34, 32)
 
 # sizes
-dis_x = 900
-dis_y = 800
-step = 50
+board_data = json.load(open("fixtures/board_data.json", "r"))
+dis_x = 400
+dis_y = dis_x
+step = dis_x * 0.9 // len(board_data[0])
 border_width = 8
 
 # game speed
-fps = 8
-
-# board
-board_data = json.load(open("fixtures/board_data.json", "r"))
+fps = 1
 
 
 # checks:
 def checks():
-    if (dis_x % step, dis_y % step) != (0, 0):
-        print(f"{__name__}ugly grid:step ratio")
     _ = None
     for i in range(len(board_data)):
         if _ is None:

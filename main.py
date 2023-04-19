@@ -23,6 +23,7 @@ while not game_over:
             pygame.display.quit()
             pygame.quit()
             exit()
+
     next_move = controller.next_move()
     if next_move:
         board.update_actor_position(controller.get_current_position())

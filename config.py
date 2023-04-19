@@ -1,12 +1,13 @@
-# RGB values
 import json
 
+# RGB values
 background_colour = (0, 0, 0)
 text_colour = (175, 175, 175)
 
 green = (41, 135, 31)
 red = (122, 20, 6)
 gray = (38, 34, 32)
+white = (175, 175, 175)
 
 # sizes
 board_data = json.load(open("fixtures/board_data.json", "r"))

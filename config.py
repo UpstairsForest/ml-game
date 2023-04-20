@@ -1,6 +1,6 @@
 # speeds
-game_end_delay = 1  # ms
-frame_delay = 0.5  # ms
+game_end_delay = 2  # s
+frame_delay = 0.3  # s
 
 # board
 board_width = 8

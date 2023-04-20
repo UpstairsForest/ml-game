@@ -1,5 +1,5 @@
 from config import board_width
-from models.game_models import Move, Position
+from models.game_models import Move, Position, Path, Board
 
 
 def get_actor_starting_position() -> Position:
@@ -23,3 +23,10 @@ def has_game_ended(actor_position: Position):
     if actor_position.x == ending_position.x and actor_position.y == ending_position.y:
         return True
     return False
+
+
+def rate_result(actor_path: Path, starting_board: Board):
+    # + for coins
+    # - for stepping on one square more than once
+    # ~ path length
+    raise NotImplemented

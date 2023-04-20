@@ -4,32 +4,47 @@ from typing import Optional
 
 from controllers.base_controller import BaseController
 from controllers.trivial_ai import TrivialAI
-from game import logic, board
+from game import logic
+from game.board import BoardManager
 from config import (
     game_end_delay, frame_delay,
 )
 from ui.ui import UI
 
+
+def exit_smoothly():
+    # todo: save data and such
+    exit()
+
+
+def reset():
+    # todo: recreate board, place controller at the starting position
+    raise NotImplemented
+
+
 ui: Optional[UI] = None
-# todo: replace with system arg
 if "--no-ui" not in sys.argv:
     ui = UI()
 
+board_manager = BoardManager()
 controller: BaseController = TrivialAI()
 
 while True:
-    if ui and ui.check_if_terminated():
-        exit()
+    if ui:
+        if ui.check_if_terminated():
+            exit_smoothly()
+        ui.draw(board=board_manager.get_current_board(), actor_path=controller.get_actor_path())
 
-    board.update_actor_position(controller.move())
+    board_manager.update_actor_position(controller.move())
 
     if logic.has_game_ended(controller.get_current_position()):
         print("game ended")
+        print(controller.get_current_position())
+        logic.rate_result(actor_path=controller.get_actor_path(), starting_board=board_manager.get_starting_board())
+
         if ui:
             time.sleep(game_end_delay)
+        reset()
     elif ui:
         time.sleep(frame_delay)
-
-    if ui:
-        ui.draw(board=board.get_board(), actor_path=controller.get_actor_path())
-    print("tick")
+        print("tick")

@@ -5,8 +5,8 @@ import statistics
 import tensorflow as tf
 import tqdm
 
-from matplotlib import pyplot as plt
-from typing import Any, List, Sequence, Tuple
+from PIL import Image
+from typing import List, Tuple
 
 # Create the environment
 env = gym.make("CartPole-v1")
@@ -22,13 +22,11 @@ eps = np.finfo(np.float32).eps.item()
 
 # The Model
 
+
 class ActorCritic(tf.keras.Model):
     """Combined actor-critic network."""
 
-    def __init__(
-            self,
-            num_actions: int,
-            num_hidden_units: int):
+    def __init__(self, num_actions: int, num_hidden_units: int):
         """Initialize."""
         super().__init__()
 
@@ -36,7 +34,9 @@ class ActorCritic(tf.keras.Model):
         self.actor = tf.keras.layers.Dense(num_actions)
         self.critic = tf.keras.layers.Dense(1)
 
-    def call(self, inputs: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+    def call(
+        self, inputs: tf.Tensor, training=None, mask=None
+    ) -> Tuple[tf.Tensor, tf.Tensor]:
         x = self.common(inputs)
         return self.actor(x), self.critic(x)
 
@@ -52,24 +52,25 @@ model = ActorCritic(num_actions, num_hidden_units)
 # Wrap Gym's `env.step` call as an operation in a TensorFlow function.
 # This would allow it to be included in a callable TensorFlow graph.
 
+
 def env_step(action: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Returns state, reward and done flag given an action."""
 
     state, reward, done, truncated, info = env.step(action)
-    return (state.astype(np.float32),
-            np.array(reward, np.int32),
-            np.array(done, np.int32))
+    return (
+        state.astype(np.float32),
+        np.array(reward, np.int32),
+        np.array(done, np.int32),
+    )
 
 
 def tf_env_step(action: tf.Tensor) -> List[tf.Tensor]:
-    return tf.numpy_function(env_step, [action],
-                             [tf.float32, tf.int32, tf.int32])
+    return tf.numpy_function(env_step, [action], [tf.float32, tf.int32, tf.int32])
 
 
 def run_episode(
-        initial_state: tf.Tensor,
-        model: tf.keras.Model,
-        max_steps: int) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
+    initial_state: tf.Tensor, model: tf.keras.Model, max_steps: int
+) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
     """Runs a single episode to collect training data."""
 
     action_probs = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True)
@@ -115,10 +116,10 @@ def run_episode(
 
 # 2. Compute the expected returns
 
+
 def get_expected_return(
-        rewards: tf.Tensor,
-        gamma: float,
-        standardize: bool = True) -> tf.Tensor:
+    rewards: tf.Tensor, gamma: float, standardize: bool = True
+) -> tf.Tensor:
     """Compute expected returns per timestep."""
 
     n = tf.shape(rewards)[0]
@@ -137,8 +138,9 @@ def get_expected_return(
     returns = returns.stack()[::-1]
 
     if standardize:
-        returns = ((returns - tf.math.reduce_mean(returns)) /
-                   (tf.math.reduce_std(returns) + eps))
+        returns = (returns - tf.math.reduce_mean(returns)) / (
+            tf.math.reduce_std(returns) + eps
+        )
 
     return returns
 
@@ -149,9 +151,8 @@ huber_loss = tf.keras.losses.Huber(reduction=tf.keras.losses.Reduction.SUM)
 
 
 def compute_loss(
-        action_probs: tf.Tensor,
-        values: tf.Tensor,
-        returns: tf.Tensor) -> tf.Tensor:
+    action_probs: tf.Tensor, values: tf.Tensor, returns: tf.Tensor
+) -> tf.Tensor:
     """Computes the combined Actor-Critic loss."""
 
     advantage = returns - values
@@ -171,24 +172,27 @@ optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
 
 @tf.function
 def train_step(
-        initial_state: tf.Tensor,
-        model: tf.keras.Model,
-        optimizer: tf.keras.optimizers.Optimizer,
-        gamma: float,
-        max_steps_per_episode: int) -> tf.Tensor:
+    initial_state: tf.Tensor,
+    model: tf.keras.Model,
+    optimizer: tf.keras.optimizers.Optimizer,
+    gamma: float,
+    max_steps_per_episode: int,
+) -> tf.Tensor:
     """Runs a model training step."""
 
     with tf.GradientTape() as tape:
         # Run the model for one episode to collect training data
         action_probs, values, rewards = run_episode(
-            initial_state, model, max_steps_per_episode)
+            initial_state, model, max_steps_per_episode
+        )
 
         # Calculate the expected returns
         returns = get_expected_return(rewards, gamma)
 
         # Convert training data to appropriate TF tensor shapes
         action_probs, values, returns = [
-            tf.expand_dims(x, 1) for x in [action_probs, values, returns]]
+            tf.expand_dims(x, 1) for x in [action_probs, values, returns]
+        ]
 
         # Calculate the loss values to update our network
         loss = compute_loss(action_probs, values, returns)
@@ -202,6 +206,7 @@ def train_step(
     episode_reward = tf.math.reduce_sum(rewards)
 
     return episode_reward
+
 
 # 5. Run the training loop
 
@@ -221,17 +226,18 @@ gamma = 0.99
 episodes_reward: collections.deque = collections.deque(maxlen=min_episodes_criterion)
 
 t = tqdm.trange(max_episodes)
+i = None
 for i in t:
     initial_state, info = env.reset()
     initial_state = tf.constant(initial_state, dtype=tf.float32)
-    episode_reward = int(train_step(
-        initial_state, model, optimizer, gamma, max_steps_per_episode))
+    episode_reward = int(
+        train_step(initial_state, model, optimizer, gamma, max_steps_per_episode)
+    )
 
     episodes_reward.append(episode_reward)
     running_reward = statistics.mean(episodes_reward)
 
-    t.set_postfix(
-        episode_reward=episode_reward, running_reward=running_reward)
+    t.set_postfix(episode_reward=episode_reward, running_reward=running_reward)
 
     # Show the average episode reward every 10 episodes
     if i % 10 == 0:
@@ -240,16 +246,14 @@ for i in t:
     if running_reward > reward_threshold and i >= min_episodes_criterion:
         break
 
-print(f'\nSolved at episode {i}: average reward: {running_reward:.2f}!')
+print(f"\nSolved at episode {i}: average reward: {running_reward:.2f}!")
 
 # Visualization
 
 # Render an episode and save as a GIF file
 
-from IPython import display as ipythondisplay
-from PIL import Image
 
-render_env = gym.make("CartPole-v1", render_mode='rgb_array')
+render_env = gym.make("CartPole-v1", render_mode="rgb_array")
 
 
 def render_episode(env: gym.Env, model: tf.keras.Model, max_steps: int):
@@ -279,7 +283,6 @@ def render_episode(env: gym.Env, model: tf.keras.Model, max_steps: int):
 
 # Save GIF image
 images = render_episode(render_env, model, max_steps_per_episode)
-image_file = 'cartpole-v1.gif'
+image_file = "cartpole-v1.gif"
 # loop=0: loop forever, duration=1: play each frame for 1ms
-images[0].save(
-    image_file, save_all=True, append_images=images[1:], loop=0, duration=1)
+images[0].save(image_file, save_all=True, append_images=images[1:], loop=0, duration=1)

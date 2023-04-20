@@ -1,3 +1,4 @@
+import sys
 import time
 from typing import Optional
 
@@ -9,12 +10,10 @@ from config import (
 )
 from ui.ui import UI
 
+ui: Optional[UI] = None
 # todo: replace with system arg
-with_ui = True
-if with_ui:
-    ui: Optional[UI] = UI()
-else:
-    ui = None
+if "--no-ui" not in sys.argv:
+    ui = UI()
 
 controller: BaseController = TrivialAI()
 
@@ -26,7 +25,7 @@ while True:
 
     if logic.has_game_ended(controller.get_current_position()):
         print("game ended")
-        if with_ui:
+        if ui:
             time.sleep(game_end_delay)
     elif ui:
         time.sleep(frame_delay)

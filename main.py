@@ -1,32 +1,36 @@
-import pygame
+import time
+from typing import Optional
 
 from controllers.base_controller import BaseController
 from controllers.trivial_ai import TrivialAI
-from ui.board import Board
+from game import logic, board
 from config import (
-    dis_x,
-    dis_y, fps, board_data,
+    game_end_delay, frame_delay,
 )
+from ui.ui import UI
 
-pygame.init()
-clock = pygame.time.Clock()
-display = pygame.display.set_mode((dis_x, dis_y))
+# todo: replace with system arg
+with_ui = True
+if with_ui:
+    ui: Optional[UI] = UI()
+else:
+    ui = None
 
 controller: BaseController = TrivialAI()
-board: Board = Board(display, board_data)
 
-board.draw()
-game_over = False
-while not game_over:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.display.quit()
-            pygame.quit()
-            exit()
+while True:
+    if ui and ui.check_if_terminated():
+        exit()
 
-    next_move = controller.next_move()
-    if next_move:
-        board.update_actor_position(controller.get_current_position())
-        board.draw()
-    clock.tick(fps)
+    board.update_actor_position(controller.move())
+
+    if logic.has_game_ended(controller.get_current_position()):
+        print("game ended")
+        if with_ui:
+            time.sleep(game_end_delay)
+    elif ui:
+        time.sleep(frame_delay)
+
+    if ui:
+        ui.draw(board=board.get_board(), actor_path=controller.get_actor_path())
     print("tick")

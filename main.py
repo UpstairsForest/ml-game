@@ -3,7 +3,8 @@ import time
 from typing import Optional
 
 from controllers.base_controller import BaseController
-from controllers.trivial_ai import TrivialAI
+from controllers.lwalk import LWalk
+from controllers.random_walk import RandomWalk
 from game import logic
 from game.board import BoardManager
 from config import (
@@ -27,7 +28,8 @@ if "--no-ui" not in sys.argv:
     ui = UI()
 
 board_manager = BoardManager()
-controller: BaseController = TrivialAI()
+# controller: BaseController = LWalk()
+controller: BaseController = RandomWalk()
 
 while True:
     if ui:
@@ -39,7 +41,6 @@ while True:
 
     if logic.has_game_ended(controller.get_current_position()):
         print("game ended")
-        print(controller.get_current_position())
         logic.rate_result(actor_path=controller.get_actor_path(), starting_board=board_manager.get_starting_board())
 
         if ui:

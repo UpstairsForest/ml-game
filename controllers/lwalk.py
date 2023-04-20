@@ -5,7 +5,7 @@ from game import logic
 from models.game_models import Move, Position, Path
 
 
-class TrivialAI(BaseController):
+class LWalk(BaseController):
     current_position: Position
     actor_path: Path = []
 

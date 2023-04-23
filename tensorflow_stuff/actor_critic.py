@@ -8,20 +8,6 @@ import tqdm
 from PIL import Image
 from typing import List, Tuple
 
-# Create the environment
-env = gym.make("CartPole-v1")
-
-# Set seed for experiment reproducibility
-seed = 42
-tf.random.set_seed(seed)
-np.random.seed(seed)
-
-# Small epsilon value for stabilizing division operations
-eps = np.finfo(np.float32).eps.item()
-
-
-# The Model
-
 
 class ActorCritic(tf.keras.Model):
     """Combined actor-critic network."""
@@ -35,22 +21,10 @@ class ActorCritic(tf.keras.Model):
         self.critic = tf.keras.layers.Dense(1)
 
     def call(
-        self, inputs: tf.Tensor, training=None, mask=None
+            self, inputs: tf.Tensor, training=None, mask=None
     ) -> Tuple[tf.Tensor, tf.Tensor]:
         x = self.common(inputs)
         return self.actor(x), self.critic(x)
-
-
-num_actions = env.action_space.n  # 2
-num_hidden_units = 128
-
-model = ActorCritic(num_actions, num_hidden_units)
-
-
-# 1. Collecting training data
-
-# Wrap Gym's `env.step` call as an operation in a TensorFlow function.
-# This would allow it to be included in a callable TensorFlow graph.
 
 
 def env_step(action: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -69,7 +43,7 @@ def tf_env_step(action: tf.Tensor) -> List[tf.Tensor]:
 
 
 def run_episode(
-    initial_state: tf.Tensor, model: tf.keras.Model, max_steps: int
+        initial_state: tf.Tensor, model: tf.keras.Model, max_steps: int
 ) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
     """Runs a single episode to collect training data."""
 
@@ -114,11 +88,8 @@ def run_episode(
     return action_probs, values, rewards
 
 
-# 2. Compute the expected returns
-
-
 def get_expected_return(
-    rewards: tf.Tensor, gamma: float, standardize: bool = True
+        rewards: tf.Tensor, gamma: float, standardize: bool = True
 ) -> tf.Tensor:
     """Compute expected returns per timestep."""
 
@@ -139,19 +110,14 @@ def get_expected_return(
 
     if standardize:
         returns = (returns - tf.math.reduce_mean(returns)) / (
-            tf.math.reduce_std(returns) + eps
+                tf.math.reduce_std(returns) + eps
         )
 
     return returns
 
 
-# 3. The Actor-Critic Loss
-
-huber_loss = tf.keras.losses.Huber(reduction=tf.keras.losses.Reduction.SUM)
-
-
 def compute_loss(
-    action_probs: tf.Tensor, values: tf.Tensor, returns: tf.Tensor
+        action_probs: tf.Tensor, values: tf.Tensor, returns: tf.Tensor
 ) -> tf.Tensor:
     """Computes the combined Actor-Critic loss."""
 
@@ -165,18 +131,13 @@ def compute_loss(
     return actor_loss + critic_loss
 
 
-# 4. Define the training step to update parameters
-
-optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
-
-
 @tf.function
 def train_step(
-    initial_state: tf.Tensor,
-    model: tf.keras.Model,
-    optimizer: tf.keras.optimizers.Optimizer,
-    gamma: float,
-    max_steps_per_episode: int,
+        initial_state: tf.Tensor,
+        model: tf.keras.Model,
+        optimizer: tf.keras.optimizers.Optimizer,
+        gamma: float,
+        max_steps_per_episode: int,
 ) -> tf.Tensor:
     """Runs a model training step."""
 
@@ -208,7 +169,43 @@ def train_step(
     return episode_reward
 
 
-# 5. Run the training loop
+def render_episode(env: gym.Env, model: tf.keras.Model, max_steps: int):
+    state, info = env.reset()
+    state = tf.constant(state, dtype=tf.float32)
+    screen = env.render()
+    images = [Image.fromarray(screen)]
+
+    for i in range(1, max_steps + 1):
+        state = tf.expand_dims(state, 0)
+        action_probs, _ = model(state)
+        action = np.argmax(np.squeeze(action_probs))
+
+        state, reward, done, truncated, info = env.step(action)
+        state = tf.constant(state, dtype=tf.float32)
+
+        # Render screen every 10 steps
+        if i % 10 == 0:
+            screen = env.render()
+            images.append(Image.fromarray(screen))
+
+        if done:
+            break
+
+    return images
+
+
+# Create the environment
+env = gym.make("CartPole-v1")
+
+# Set seed for experiment reproducibility
+seed = 42
+tf.random.set_seed(seed)
+np.random.seed(seed)
+
+# Small epsilon value for stabilizing division operations
+eps = np.finfo(np.float32).eps.item()
+num_actions = env.action_space.n  # 2
+num_hidden_units = 128
 
 min_episodes_criterion = 100
 max_episodes = 10000
@@ -221,6 +218,10 @@ running_reward = 0
 
 # The discount factor for future rewards
 gamma = 0.99
+
+model = ActorCritic(num_actions, num_hidden_units)
+huber_loss = tf.keras.losses.Huber(reduction=tf.keras.losses.Reduction.SUM)
+optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
 
 # Keep the last episodes reward
 episodes_reward: collections.deque = collections.deque(maxlen=min_episodes_criterion)
@@ -249,37 +250,9 @@ for i in t:
 print(f"\nSolved at episode {i}: average reward: {running_reward:.2f}!")
 
 # Visualization
-
 # Render an episode and save as a GIF file
 
-
 render_env = gym.make("CartPole-v1", render_mode="rgb_array")
-
-
-def render_episode(env: gym.Env, model: tf.keras.Model, max_steps: int):
-    state, info = env.reset()
-    state = tf.constant(state, dtype=tf.float32)
-    screen = env.render()
-    images = [Image.fromarray(screen)]
-
-    for i in range(1, max_steps + 1):
-        state = tf.expand_dims(state, 0)
-        action_probs, _ = model(state)
-        action = np.argmax(np.squeeze(action_probs))
-
-        state, reward, done, truncated, info = env.step(action)
-        state = tf.constant(state, dtype=tf.float32)
-
-        # Render screen every 10 steps
-        if i % 10 == 0:
-            screen = env.render()
-            images.append(Image.fromarray(screen))
-
-        if done:
-            break
-
-    return images
-
 
 # Save GIF image
 images = render_episode(render_env, model, max_steps_per_episode)

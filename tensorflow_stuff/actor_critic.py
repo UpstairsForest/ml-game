@@ -32,7 +32,7 @@ def env_step(action: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
     state, reward, done, truncated, info = env.step(action)
     return (
-        state.astype(np.float32),
+        np.asarray(state, dtype=np.float32),
         np.array(reward, np.int32),
         np.array(done, np.int32),
     )
@@ -56,7 +56,8 @@ def run_episode(
 
     for t in tf.range(max_steps):
         # Convert state into a batched tensor (batch size = 1)
-        state = tf.expand_dims(state, 0)
+        # state = tf.expand_dims(state, 0)
+        state = tf.convert_to_tensor(state)
 
         # Run the model and to get action probabilities and critic value
         action_logits_t, value = model(state)
@@ -176,17 +177,17 @@ def render_episode(env: gym.Env, model: tf.keras.Model, max_steps: int):
     images = [Image.fromarray(screen)]
 
     for i in range(1, max_steps + 1):
-        state = tf.expand_dims(state, 0)
+        # state = tf.expand_dims(state, 0)
+        state = tf.convert_to_tensor(state)
         action_probs, _ = model(state)
         action = np.argmax(np.squeeze(action_probs))
 
         state, reward, done, truncated, info = env.step(action)
         state = tf.constant(state, dtype=tf.float32)
 
-        # Render screen every 10 steps
-        if i % 10 == 0:
-            screen = env.render()
-            images.append(Image.fromarray(screen))
+        # Render screen every step
+        screen = env.render()
+        images.append(Image.fromarray(screen))
 
         if done:
             break
@@ -195,7 +196,8 @@ def render_episode(env: gym.Env, model: tf.keras.Model, max_steps: int):
 
 
 # Create the environment
-env = gym.make("CartPole-v1")
+# env = gym.make("CartPole-v1")
+env = gym.make("gym_stuff:Environment-v0")
 
 # Set seed for experiment reproducibility
 seed = 42
@@ -204,12 +206,12 @@ np.random.seed(seed)
 
 # Small epsilon value for stabilizing division operations
 eps = np.finfo(np.float32).eps.item()
-num_actions = env.action_space.n  # 2
+num_actions = env.action_space.n
 num_hidden_units = 128
 
 min_episodes_criterion = 100
-max_episodes = 10000
-max_steps_per_episode = 500
+max_episodes = 1000
+max_steps_per_episode = 100
 
 # `CartPole-v1` is considered solved if average reward is >= 475 over 500
 # consecutive trials
@@ -252,7 +254,8 @@ print(f"\nSolved at episode {i}: average reward: {running_reward:.2f}!")
 # Visualization
 # Render an episode and save as a GIF file
 
-render_env = gym.make("CartPole-v1", render_mode="rgb_array")
+# render_env = gym.make("CartPole-v1", render_mode="rgb_array")
+render_env = gym.make("gym_stuff:Environment-v0", render_mode="rgb_array")
 
 # Save GIF image
 images = render_episode(render_env, model, max_steps_per_episode)

@@ -15,18 +15,16 @@ class Environment(gym.Env):
     def __init__(self, render_mode=None):
         self.size = board_width
         self.window_size = dis_x
-        self._agent_location = None
-        self._target_location = None
+        self._agent_location = None  # size 2 ndarray
+        self._target_location = None  # size 2 ndarray
 
         # Observations are dictionaries with the agent's and the target's location.
         # Each location is encoded as an element of {0, ..., `size`}^2, i.e. MultiDiscrete([size, size]).
         # todo: sync with main
-        self.observation_space = spaces.Dict(
-            {
-                "agent": spaces.Box(low=0, high=self.size - 1, shape=(2,), dtype=int),
-                "target": spaces.Box(low=0, high=self.size - 1, shape=(2,), dtype=int),
-            }
-        )
+        self.observation_space = spaces.Tuple([
+            spaces.Box(low=0, high=self.size - 1, shape=(2,), dtype=int),
+            spaces.Box(low=0, high=self.size - 1, shape=(2,), dtype=int),
+        ])
 
         # We have 4 actions, corresponding to "right", "up", "left", "down"
         self.action_space = spaces.Discrete(4)
@@ -170,7 +168,7 @@ class Environment(gym.Env):
             pygame.quit()
 
     def _get_obs(self):
-        return {"agent": self._agent_location, "target": self._target_location}
+        return self._agent_location, self._target_location
 
     def _get_info(self):
         return {

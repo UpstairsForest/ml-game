@@ -14,7 +14,7 @@ class ActorCritic(tf.keras.Model):
         self.critic = tf.keras.layers.Dense(1)
 
     def call(
-            self, inputs: tf.Tensor, training=None, mask=None
+        self, inputs: tf.Tensor, training=None, mask=None
     ) -> Tuple[tf.Tensor, tf.Tensor]:
         x = self.common(inputs)
         return self.actor(x), self.critic(x)

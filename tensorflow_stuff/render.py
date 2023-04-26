@@ -34,7 +34,7 @@ def render_episode(env: gym.Env, model: tf.keras.Model, max_steps: int):
 max_steps_per_episode = 500
 
 model = ActorCritic(4, 128)
-model.load_weights('./checkpoints/model_weights')
+model.load_weights("./checkpoints/model_weights")
 
 # Visualization
 # Render an episode and save as a GIF file

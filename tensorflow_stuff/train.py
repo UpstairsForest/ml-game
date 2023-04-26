@@ -26,7 +26,7 @@ def tf_env_step(action: tf.Tensor) -> List[tf.Tensor]:
 
 
 def run_episode(
-        initial_state: tf.Tensor, model: tf.keras.Model, max_steps: int
+    initial_state: tf.Tensor, model: tf.keras.Model, max_steps: int
 ) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
     """Runs a single episode to collect training data."""
 
@@ -73,7 +73,7 @@ def run_episode(
 
 
 def get_expected_return(
-        rewards: tf.Tensor, gamma: float, standardize: bool = True
+    rewards: tf.Tensor, gamma: float, standardize: bool = True
 ) -> tf.Tensor:
     """Compute expected returns per timestep."""
 
@@ -94,14 +94,14 @@ def get_expected_return(
 
     if standardize:
         returns = (returns - tf.math.reduce_mean(returns)) / (
-                tf.math.reduce_std(returns) + eps
+            tf.math.reduce_std(returns) + eps
         )
 
     return returns
 
 
 def compute_loss(
-        action_probs: tf.Tensor, values: tf.Tensor, returns: tf.Tensor
+    action_probs: tf.Tensor, values: tf.Tensor, returns: tf.Tensor
 ) -> tf.Tensor:
     """Computes the combined Actor-Critic loss."""
 
@@ -117,11 +117,11 @@ def compute_loss(
 
 @tf.function
 def train_step(
-        initial_state: tf.Tensor,
-        model: tf.keras.Model,
-        optimizer: tf.keras.optimizers.Optimizer,
-        gamma: float,
-        max_steps_per_episode: int,
+    initial_state: tf.Tensor,
+    model: tf.keras.Model,
+    optimizer: tf.keras.optimizers.Optimizer,
+    gamma: float,
+    max_steps_per_episode: int,
 ) -> tf.Tensor:
     """Runs a model training step."""
 
@@ -179,7 +179,7 @@ running_reward = 0
 gamma = 0.99
 
 model = ActorCritic(num_actions, num_hidden_units)
-model.load_weights('./checkpoints/model_weights')
+model.load_weights("./checkpoints/model_weights")
 huber_loss = tf.keras.losses.Huber(reduction=tf.keras.losses.Reduction.SUM)
 optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
 
@@ -208,4 +208,4 @@ for i in t:
         break
 
 print(f"\nSolved at episode {i}: average reward: {running_reward:.2f}!")
-model.save_weights('./checkpoints/model_weights')
+model.save_weights("./checkpoints/model_weights")

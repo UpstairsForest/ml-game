@@ -13,7 +13,7 @@ class Environment(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
     def __init__(self, render_mode=None):
-        self.size = board_width
+        self.size = 3
         self.window_size = dis_x
         self._agent_location = None  # size 2 ndarray
         self._target_location = None  # size 2 ndarray

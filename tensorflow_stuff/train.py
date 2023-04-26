@@ -5,26 +5,9 @@ import statistics
 import tensorflow as tf
 import tqdm
 
-from PIL import Image
 from typing import List, Tuple
 
-
-class ActorCritic(tf.keras.Model):
-    """Combined actor-critic network."""
-
-    def __init__(self, num_actions: int, num_hidden_units: int):
-        """Initialize."""
-        super().__init__()
-
-        self.common = tf.keras.layers.Dense(num_hidden_units, activation="relu")
-        self.actor = tf.keras.layers.Dense(num_actions)
-        self.critic = tf.keras.layers.Dense(1)
-
-    def call(
-            self, inputs: tf.Tensor, training=None, mask=None
-    ) -> Tuple[tf.Tensor, tf.Tensor]:
-        x = self.common(inputs)
-        return self.actor(x), self.critic(x)
+from tensorflow_stuff.model import ActorCritic
 
 
 def env_step(action: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -170,33 +153,7 @@ def train_step(
     return episode_reward
 
 
-def render_episode(env: gym.Env, model: tf.keras.Model, max_steps: int):
-    state, info = env.reset()
-    state = tf.constant(state, dtype=tf.float32)
-    screen = env.render()
-    images = [Image.fromarray(screen)]
-
-    for i in range(1, max_steps + 1):
-        # state = tf.expand_dims(state, 0)
-        state = tf.convert_to_tensor(state)
-        action_probs, _ = model(state)
-        action = np.argmax(np.squeeze(action_probs))
-
-        state, reward, done, truncated, info = env.step(action)
-        state = tf.constant(state, dtype=tf.float32)
-
-        # Render screen every step
-        screen = env.render()
-        images.append(Image.fromarray(screen))
-
-        if done:
-            break
-
-    return images
-
-
 # Create the environment
-# env = gym.make("CartPole-v1")
 env = gym.make("gym_stuff:Environment-v0")
 
 # Set seed for experiment reproducibility
@@ -211,7 +168,7 @@ num_hidden_units = 128
 
 min_episodes_criterion = 100
 max_episodes = 1000
-max_steps_per_episode = 100
+max_steps_per_episode = 500
 
 # `CartPole-v1` is considered solved if average reward is >= 475 over 500
 # consecutive trials
@@ -222,6 +179,7 @@ running_reward = 0
 gamma = 0.99
 
 model = ActorCritic(num_actions, num_hidden_units)
+model.load_weights('./checkpoints/model_weights')
 huber_loss = tf.keras.losses.Huber(reduction=tf.keras.losses.Reduction.SUM)
 optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
 
@@ -250,15 +208,4 @@ for i in t:
         break
 
 print(f"\nSolved at episode {i}: average reward: {running_reward:.2f}!")
-
-# Visualization
-# Render an episode and save as a GIF file
-
-# render_env = gym.make("CartPole-v1", render_mode="rgb_array")
-render_env = gym.make("gym_stuff:Environment-v0", render_mode="rgb_array")
-
-# Save GIF image
-images = render_episode(render_env, model, max_steps_per_episode)
-image_file = "cartpole-v1.gif"
-# loop=0: loop forever, duration=1: play each frame for 1ms
-images[0].save(image_file, save_all=True, append_images=images[1:], loop=0, duration=1)
+model.save_weights('./checkpoints/model_weights')

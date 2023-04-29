@@ -15,7 +15,9 @@ class TheAbominable0(LWalk):
 
     model: tf.keras.Model
     board_manager: BoardManager
-    checkpoint_path = "../fixtures/checkpoints/the_abominable_0/cp.ckpt"
+    print(os.getcwd())
+    checkpoint_path = os.path.join(os.getcwd(), "fixtures/checkpoints/the_abominable_0/cp.ckpt")
+    print(checkpoint_path)
 
     def __init__(self, board_manager: BoardManager):
         # it's 'abominable' for a reason
@@ -81,10 +83,11 @@ class TheAbominable0(LWalk):
         )
 
         # fit
-        self.model.fit(data, goal, epochs=3, verbose=1, callbacks=cp_callback)
+        self.model.fit(data, goal, epochs=3, verbose=0, callbacks=[cp_callback])
         # predict
         prediction_model = tf.keras.Sequential([self.model, tf.keras.layers.Softmax()])
-        predicted_move: Move = moves[np.argmax(prediction_model.predict(data))]
+        prediction = prediction_model.predict(data, verbose=0)
+        predicted_move: Move = moves[np.argmax(prediction)]
 
         # update controller-related fields
         self.current_position = predicted_move.end

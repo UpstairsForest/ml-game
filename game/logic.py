@@ -45,9 +45,8 @@ def rate_move(move: Move, current_board: Board):
     if not x or not y:
         raise Exception("failed to find game_end")
     # scalar product
-    prod = np.dot(
-        [move.end.x - move.start.x, move.end.y - move.start.y],  # actor_start to actor_end vector
-        [x - move.start.x, y - move.start.y],  # actor_start to game_end vector
-    )
+    v1 = [move.end.x - move.start.x, move.end.y - move.start.y]  # actor_start to actor_end vector
+    v2 = [x - move.start.x, y - move.start.y]  # actor_start to game_end vector
+    prod = np.dot(v1, v2)
     # normalize
-    return prod / np.abs(prod)
+    return prod / (np.linalg.norm(v1) * np.linalg.norm(v2))

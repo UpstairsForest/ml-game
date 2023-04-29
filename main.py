@@ -10,7 +10,7 @@ from game import logic
 from game.board import BoardManager
 from config import (
     game_end_delay,
-    frame_delay,
+    frame_delay, step_limit,
 )
 from ui.ui import UI
 
@@ -32,9 +32,6 @@ board_manager = BoardManager()
 # controller: BaseController = LWalk()
 controller: BaseController = TheAbominable0(board_manager)
 
-
-# in case the abomination gets stuck
-step_limit = 50
 step = 0
 while True:
     try:

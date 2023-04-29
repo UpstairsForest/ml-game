@@ -5,6 +5,7 @@ from typing import List
 import numpy as np
 import tensorflow as tf
 
+from config import board_width
 from controllers.lwalk import LWalk
 from game import logic
 from game.board import BoardManager
@@ -17,7 +18,7 @@ class TheAbominable0(LWalk):
     model: tf.keras.Model
     board_manager: BoardManager
     checkpoint_path = os.path.join(
-        os.getcwd(), "fixtures/checkpoints/the_abominable_0/cp.ckpt"
+        os.getcwd(), f"fixtures/checkpoints/the_abominable_0_bw{board_width}/cp.ckpt"
     )
 
     def __init__(self, board_manager: BoardManager):

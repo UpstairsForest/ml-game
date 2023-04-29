@@ -8,10 +8,6 @@ def get_actor_starting_position() -> Position:
     return Position(x=0, y=0)
 
 
-def get_actor_ending_position() -> Position:
-    return Position(x=board_width - 1, y=board_width - 1)
-
-
 def is_move_valid(move: Move):
     if not abs(move.start.x - move.end.x) + abs(move.start.y - move.end.y) == 1:
         return False
@@ -25,13 +21,6 @@ def is_move_valid(move: Move):
     return True
 
 
-def has_game_ended(actor_position: Position):
-    ending_position = get_actor_ending_position()
-    if actor_position.x == ending_position.x and actor_position.y == ending_position.y:
-        return True
-    return False
-
-
 def rate_result(actor_path: Path, starting_board: Board):
     # + for coins
     # - for stepping on one square more than once
@@ -43,10 +32,10 @@ def rate_move(move: Move, current_board: Board):
     # closer to goal is better
     # move-distance is the same, so direction is the only thing that matters
     x, y = None, None
-    for y, row in enumerate(current_board):
-        for x, square in enumerate(row):
+    for i, row in enumerate(current_board):
+        for j, square in enumerate(row):
             if square == Square.END:
-                break
+                x, y = j, i
     if not x or not y:
         raise Exception("failed to find game_end")
     # scalar product

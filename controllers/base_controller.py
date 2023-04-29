@@ -12,3 +12,6 @@ class BaseController(ABC):
 
     def get_actor_path(self) -> Path:
         raise NotImplemented
+
+    def reset(self):
+        raise NotImplemented

@@ -1,4 +1,5 @@
 import os.path
+from dataclasses import replace
 from typing import List
 
 import numpy as np
@@ -83,7 +84,7 @@ class TheAbominable0(LWalk):
         goal = np.expand_dims(best_move_index, 0)
         cp_callback = tf.keras.callbacks.ModelCheckpoint(
             filepath=self.checkpoint_path,
-            verbose=1,
+            verbose=0,
             save_weights_only=True,
         )
 
@@ -98,6 +99,10 @@ class TheAbominable0(LWalk):
         self.current_position = predicted_move.end
         self.actor_path.append(self.current_position)
         return predicted_move
+
+    def reset(self):
+        self.current_position = replace(logic.get_actor_starting_position())
+        self.actor_path = []
 
     @staticmethod
     def _square_to_numeric(square: Square) -> int:

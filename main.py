@@ -16,13 +16,12 @@ from ui.ui import UI
 
 
 def exit_smoothly():
-    # todo: save data and such
     exit()
 
 
 def reset():
-    # todo: recreate board, place controller at the starting position
-    raise NotImplemented
+    board_manager.reset()
+    controller.reset()
 
 
 ui: Optional[UI] = None
@@ -34,26 +33,20 @@ board_manager = BoardManager()
 controller: BaseController = TheAbominable0(board_manager)
 
 while True:
+    board_manager.update_actor_position(controller.move())
     if ui:
-        if ui.check_if_terminated():
-            exit_smoothly()
         ui.draw(
             board=board_manager.get_current_board(),
             actor_path=controller.get_actor_path(),
         )
+        if ui.check_if_terminated():
+            exit_smoothly()
 
-    board_manager.update_actor_position(controller.move())
-
-    if logic.has_game_ended(controller.get_current_position()):
+    if board_manager.has_game_ended(controller.get_current_position()):
         print("game ended")
-        logic.rate_result(
-            actor_path=controller.get_actor_path(),
-            starting_board=board_manager.get_starting_board(),
-        )
 
         if ui:
             time.sleep(game_end_delay)
         reset()
     elif ui:
         time.sleep(frame_delay)
-        print("tick")

@@ -14,7 +14,7 @@ class BoardManager:
         self.reset()
 
     def get_actor_ending_position(self) -> Position:
-        for y, row in enumerate(self._current_board):
+        for y, row in enumerate(self._starting_board):
             for x, square in enumerate(row):
                 if square == Square.END:
                     return Position(x=x, y=y)

@@ -1,5 +1,5 @@
 # speeds
-game_end_delay = 2  # s
+game_end_delay = 1  # s
 frame_delay = 0.3  # s
 
 # board

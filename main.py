@@ -32,21 +32,36 @@ board_manager = BoardManager()
 # controller: BaseController = LWalk()
 controller: BaseController = TheAbominable0(board_manager)
 
+
+# in case the abomination gets stuck
+step_limit = 100
+step = 0
 while True:
-    board_manager.update_actor_position(controller.move())
-    if ui:
-        ui.draw(
-            board=board_manager.get_current_board(),
-            actor_path=controller.get_actor_path(),
-        )
-        if ui.check_if_terminated():
-            exit_smoothly()
+    try:
+        if step >= step_limit:
+            reset()
+            step = 0
+        step += 1
 
-    if board_manager.has_game_ended(controller.get_current_position()):
-        print("game ended")
-
+        board_manager.update_actor_position(controller.move())
         if ui:
-            time.sleep(game_end_delay)
+            ui.draw(
+                board=board_manager.get_current_board(),
+                actor_path=controller.get_actor_path(),
+            )
+            if ui.check_if_terminated():
+                exit_smoothly()
+
+        if board_manager.has_game_ended(controller.get_current_position()):
+            print("game ended")
+
+            if ui:
+                time.sleep(game_end_delay)
+            reset()
+            step = 0
+        # elif ui:
+        #     time.sleep(frame_delay)
+    except Exception as e:
+        print(e)
         reset()
-    elif ui:
-        time.sleep(frame_delay)
+        step = 0

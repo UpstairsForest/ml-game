@@ -144,4 +144,4 @@ Session.vim
 .favorites.json
 .settings/
 
-/tensorflow_stuff/checkpoints/
+/tensorflow_stuff/actor_critic/checkpoints/

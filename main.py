@@ -3,8 +3,9 @@ import time
 from typing import Optional
 
 from controllers.base_controller import BaseController
-from controllers.lwalk import LWalk
+
 from controllers.random_walk import RandomWalk
+from controllers.the_abominable_0 import TheAbominable0
 from game import logic
 from game.board import BoardManager
 from config import (
@@ -29,7 +30,7 @@ if "--no-ui" not in sys.argv:
 
 board_manager = BoardManager()
 # controller: BaseController = LWalk()
-controller: BaseController = RandomWalk()
+controller: BaseController = TheAbominable0(board_manager)
 
 while True:
     if ui:

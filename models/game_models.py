@@ -23,5 +23,5 @@ class Square(Enum):
     ACTOR = "ACTOR"
 
 
-Board = List[List[Enum]]
+Board = List[List[Square]]
 Path = List[Position]

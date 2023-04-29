@@ -1,5 +1,7 @@
+import numpy as np
+
 from config import board_width
-from models.game_models import Move, Position, Path, Board
+from models.game_models import Move, Position, Path, Board, Square
 
 
 def get_actor_starting_position() -> Position:
@@ -30,3 +32,22 @@ def rate_result(actor_path: Path, starting_board: Board):
     # - for stepping on one square more than once
     # ~ path length
     raise NotImplemented
+
+
+def rate_move(move: Move, current_board: Board):
+    # closer to goal is better
+    # move-distance is the same, so direction is the only thing that matters
+    x, y = None, None
+    for y, row in enumerate(current_board):
+        for x, square in enumerate(row):
+            if square == Square.END:
+                break
+    if not x or not y:
+        raise Exception("failed to find game_end")
+    # scalar product
+    prod = np.dot(
+        [move.end.x - move.start.x, move.end.y - move.start.y],  # actor_start to actor_end vector
+        [x - move.start.x, y - move.start.y],  # actor_start to game_end vector
+    )
+    # normalize
+    return prod / np.abs(prod)

@@ -38,10 +38,9 @@ class BoardManager:
 
     def reset(self):
         _temp: List[Square] = (n_coins * [Square.COIN]) + (
-                (n_tiles - 2 - n_coins) * [Square.EMPTY]
+                (n_tiles - 1 - n_coins) * [Square.EMPTY]
         ) + [Square.END]
         random.shuffle(_temp)
-        _temp = [Square.START] + _temp
 
         self._starting_board = [
             _temp[i * board_width: i * board_width + board_width]

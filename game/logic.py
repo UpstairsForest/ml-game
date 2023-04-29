@@ -5,7 +5,8 @@ from models.game_models import Move, Position, Path, Board, Square
 
 
 def get_actor_starting_position() -> Position:
-    return Position(x=0, y=0)
+    x, y = np.random.choice([i for i in range(board_width)], size=2)
+    return Position(x=x, y=y)
 
 
 def is_move_valid(move: Move):

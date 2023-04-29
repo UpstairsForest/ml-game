@@ -16,11 +16,9 @@ class TheAbominable0(LWalk):
 
     model: tf.keras.Model
     board_manager: BoardManager
-    print(os.getcwd())
     checkpoint_path = os.path.join(
         os.getcwd(), "fixtures/checkpoints/the_abominable_0/cp.ckpt"
     )
-    print(checkpoint_path)
 
     def __init__(self, board_manager: BoardManager):
         # it's 'abominable' for a reason

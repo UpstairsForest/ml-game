@@ -34,7 +34,7 @@ controller: BaseController = TheAbominable0(board_manager)
 
 
 # in case the abomination gets stuck
-step_limit = 100
+step_limit = 50
 step = 0
 while True:
     try:
@@ -53,8 +53,6 @@ while True:
                 exit_smoothly()
 
         if board_manager.has_game_ended(controller.get_current_position()):
-            print("game ended")
-
             if ui:
                 time.sleep(game_end_delay)
             reset()

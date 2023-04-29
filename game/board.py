@@ -11,11 +11,16 @@ class BoardManager:
     _current_board: Board
 
     def __init__(self):
-        _temp: List[Square] = (n_coins * [Square.COIN]) + ((n_tiles - 2 - n_coins) * [Square.EMPTY])
+        _temp: List[Square] = (n_coins * [Square.COIN]) + (
+            (n_tiles - 2 - n_coins) * [Square.EMPTY]
+        )
         random.shuffle(_temp)
         _temp = [Square.START] + _temp + [Square.END]
 
-        self._starting_board = [_temp[i * board_width:i * board_width + board_width] for i in range(board_width)]
+        self._starting_board = [
+            _temp[i * board_width : i * board_width + board_width]
+            for i in range(board_width)
+        ]
         self._current_board = copy.deepcopy(self._starting_board)
 
     def get_starting_board(self) -> Board:

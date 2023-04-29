@@ -118,8 +118,15 @@ predictions = prob_model.predict(test_images)
 
 # Plot history
 fig, ax = plt.subplots()
-ax.plot(mega_history.epoch, mega_history.history["accuracy"], color="cyan", label="training")
-ax.plot(mega_history.epoch, mega_history.history["val_accuracy"], color="orange", label="validation")
+ax.plot(
+    mega_history.epoch, mega_history.history["accuracy"], color="cyan", label="training"
+)
+ax.plot(
+    mega_history.epoch,
+    mega_history.history["val_accuracy"],
+    color="orange",
+    label="validation",
+)
 ax.set(xlabel="epoch", ylabel="accuracy")
 ax.grid()
 ax.legend()

@@ -15,7 +15,12 @@ def get_actor_ending_position() -> Position:
 def is_move_valid(move: Move):
     if not abs(move.start.x - move.end.x) + abs(move.start.y - move.end.y) == 1:
         return False
-    if (move.end.x >= board_width) or (move.end.y >= board_width) or (move.end.x < 0) or (move.end.y < 0):
+    if (
+        (move.end.x >= board_width)
+        or (move.end.y >= board_width)
+        or (move.end.x < 0)
+        or (move.end.y < 0)
+    ):
         return False
     return True
 
@@ -45,7 +50,10 @@ def rate_move(move: Move, current_board: Board):
     if not x or not y:
         raise Exception("failed to find game_end")
     # scalar product
-    v1 = [move.end.x - move.start.x, move.end.y - move.start.y]  # actor_start to actor_end vector
+    v1 = [
+        move.end.x - move.start.x,
+        move.end.y - move.start.y,
+    ]  # actor_start to actor_end vector
     v2 = [x - move.start.x, y - move.start.y]  # actor_start to game_end vector
     prod = np.dot(v1, v2)
     # normalize

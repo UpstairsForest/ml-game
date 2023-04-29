@@ -4,7 +4,6 @@ from models.game_models import Position, Path, Move
 
 
 class BaseController(ABC):
-
     def move(self) -> Move:
         raise NotImplemented
 

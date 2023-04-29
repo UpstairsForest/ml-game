@@ -9,7 +9,8 @@ from controllers.the_abominable_0 import TheAbominable0
 from game import logic
 from game.board import BoardManager
 from config import (
-    game_end_delay, frame_delay,
+    game_end_delay,
+    frame_delay,
 )
 from ui.ui import UI
 
@@ -36,13 +37,19 @@ while True:
     if ui:
         if ui.check_if_terminated():
             exit_smoothly()
-        ui.draw(board=board_manager.get_current_board(), actor_path=controller.get_actor_path())
+        ui.draw(
+            board=board_manager.get_current_board(),
+            actor_path=controller.get_actor_path(),
+        )
 
     board_manager.update_actor_position(controller.move())
 
     if logic.has_game_ended(controller.get_current_position()):
         print("game ended")
-        logic.rate_result(actor_path=controller.get_actor_path(), starting_board=board_manager.get_starting_board())
+        logic.rate_result(
+            actor_path=controller.get_actor_path(),
+            starting_board=board_manager.get_starting_board(),
+        )
 
         if ui:
             time.sleep(game_end_delay)

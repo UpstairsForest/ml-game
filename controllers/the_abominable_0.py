@@ -16,7 +16,9 @@ class TheAbominable0(LWalk):
     model: tf.keras.Model
     board_manager: BoardManager
     print(os.getcwd())
-    checkpoint_path = os.path.join(os.getcwd(), "fixtures/checkpoints/the_abominable_0/cp.ckpt")
+    checkpoint_path = os.path.join(
+        os.getcwd(), "fixtures/checkpoints/the_abominable_0/cp.ckpt"
+    )
     print(checkpoint_path)
 
     def __init__(self, board_manager: BoardManager):
@@ -71,7 +73,10 @@ class TheAbominable0(LWalk):
                 end=Position(x=self.current_position.x, y=self.current_position.y - 1),
             ),
         ]
-        move_scores = [logic.rate_move(move, self.board_manager.get_current_board()) for move in moves]
+        move_scores = [
+            logic.rate_move(move, self.board_manager.get_current_board())
+            for move in moves
+        ]
         best_move_index = np.argmax(move_scores)
 
         data = np.expand_dims(np.asarray(flat_board, dtype=np.float32), 0)

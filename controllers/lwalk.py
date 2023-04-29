@@ -15,7 +15,9 @@ class LWalk(BaseController):
 
     def move(self) -> Move:
         # go down and then go left
-        next_position = Position(x=self.current_position.x, y=self.current_position.y + 1)
+        next_position = Position(
+            x=self.current_position.x, y=self.current_position.y + 1
+        )
         _move = Move(self.current_position, next_position)
         if not logic.is_move_valid(_move):
             next_position.x = self.current_position.x + 1

@@ -74,10 +74,13 @@ class TheAbominable0(LWalk):
                 end=Position(x=self.current_position.x, y=self.current_position.y - 1),
             ),
         ]
-        move_scores = [
-            logic.rate_move(move, self.board_manager.get_current_board())
-            for move in moves
-        ]
+        move_scores = []
+        for i, move in enumerate(moves):
+            if logic.is_move_valid(move):
+                move_scores.append(logic.rate_move(move, self.board_manager.get_current_board()))
+            else:
+                moves.pop(i)
+
         best_move_index = np.argmax(move_scores)
 
         data = np.expand_dims(np.asarray(flat_board, dtype=np.float32), 0)

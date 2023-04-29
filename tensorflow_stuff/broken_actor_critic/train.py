@@ -7,7 +7,7 @@ import tqdm
 
 from typing import List, Tuple
 
-from tensorflow_stuff.actor_critic.model import ActorCritic
+from tensorflow_stuff.broken_actor_critic.model import ActorCritic
 
 
 def env_step(action: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:

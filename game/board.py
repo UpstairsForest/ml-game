@@ -1,6 +1,6 @@
 import copy
 import random
-from typing import List
+from typing import List, Optional
 
 from config import n_tiles, n_coins, board_width
 from models.game_models import Board, Square, Move, Position
@@ -9,6 +9,7 @@ from models.game_models import Board, Square, Move, Position
 class BoardManager:
     _starting_board: Board
     _current_board: Board
+    _failed_to_move: bool = False
 
     def __init__(self):
         self.reset()
@@ -32,9 +33,13 @@ class BoardManager:
     def get_current_board(self) -> Board:
         return self._current_board
 
-    def update_actor_position(self, move: Move):
-        self._current_board[move.start.y][move.start.x] = Square.EMPTY
-        self._current_board[move.end.y][move.end.x] = Square.ACTOR
+    def update_actor_position(self, move: Optional[Move]):
+        if move:
+            self._current_board[move.start.y][move.start.x] = Square.EMPTY
+            self._current_board[move.end.y][move.end.x] = Square.ACTOR
+            self._failed_to_move = False
+        else:
+            self._failed_to_move = True
 
     def reset(self):
         _temp: List[Square] = (n_coins * [Square.COIN]) + (
@@ -47,3 +52,6 @@ class BoardManager:
             for i in range(board_width)
         ]
         self._current_board = copy.deepcopy(self._starting_board)
+
+    def failed_to_move(self) -> bool:
+        return self._failed_to_move

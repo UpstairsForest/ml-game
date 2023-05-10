@@ -13,6 +13,7 @@ from ui.config import (
     white,
     background_color,
     gray,
+    brown,
 )
 
 
@@ -23,7 +24,11 @@ class UI:
         pygame.init()
         self.display = pygame.display.set_mode((dis_x, dis_y))
 
-    def draw(self, board: Board, actor_path: Path):
+    def draw(self, board: Board, actor_path: Path, failed_to_move=False):
+        if failed_to_move:
+            actor_color = brown
+        else:
+            actor_color = white
         for i, row in enumerate(board):
             for j, square in enumerate(row):
                 if square == Square.START:
@@ -46,7 +51,7 @@ class UI:
             )
         pygame.draw.rect(
             self.display,
-            color=white,
+            color=actor_color,
             rect=[step * actor_path[-1].x, step * actor_path[-1].y, step, step],
         )
         pygame.display.update()

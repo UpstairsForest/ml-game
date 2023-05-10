@@ -44,13 +44,12 @@ while True:
             reset()
             step = 0
 
-        controller_move = controller.move()
-        if controller_move:
-            board_manager.update_actor_position(controller_move)
+        board_manager.update_actor_position(controller.move())
         if ui:
             ui.draw(
                 board=board_manager.get_current_board(),
                 actor_path=controller.get_actor_path(),
+                failed_to_move=board_manager.failed_to_move(),
             )
             if ui.check_if_terminated():
                 exit_smoothly()

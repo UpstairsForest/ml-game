@@ -23,7 +23,10 @@ class BoardManager:
 
     def has_game_ended(self, actor_position: Position):
         ending_position = self.get_actor_ending_position()
-        if actor_position.x == ending_position.x and actor_position.y == ending_position.y:
+        if (
+            actor_position.x == ending_position.x
+            and actor_position.y == ending_position.y
+        ):
             return True
         return False
 
@@ -42,13 +45,15 @@ class BoardManager:
             self._failed_to_move = True
 
     def reset(self):
-        _temp: List[Square] = (n_coins * [Square.COIN]) + (
-                (n_tiles - 1 - n_coins) * [Square.EMPTY]
-        ) + [Square.END]
+        _temp: List[Square] = (
+            (n_coins * [Square.COIN])
+            + ((n_tiles - 1 - n_coins) * [Square.EMPTY])
+            + [Square.END]
+        )
         random.shuffle(_temp)
 
         self._starting_board = [
-            _temp[i * board_width: i * board_width + board_width]
+            _temp[i * board_width : i * board_width + board_width]
             for i in range(board_width)
         ]
         self._current_board = copy.deepcopy(self._starting_board)

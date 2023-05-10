@@ -4,14 +4,9 @@ from typing import Optional
 
 from controllers.base_controller import BaseController
 
-from controllers.random_walk import RandomWalk
 from controllers.the_abominable_0 import TheAbominable0
-from game import logic
 from game.board import BoardManager
-from config import (
-    game_end_delay,
-    frame_delay, step_limit, model_save_interval
-)
+from config import game_end_delay, step_limit, model_save_interval
 from ui.progress_bar import print_progress_bar
 from ui.ui import UI
 
@@ -41,7 +36,6 @@ if "--no-ui" not in sys.argv:
     ui = UI()
 
 board_manager = BoardManager()
-# controller: BaseController = LWalk()
 controller: BaseController = TheAbominable0(board_manager)
 
 game_number = 0

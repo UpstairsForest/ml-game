@@ -80,11 +80,15 @@ class TheAbominable0(LWalk):
         ]
         current_board = self.board_manager.get_current_board()
         # rate and scale
-        move_scores = np.asarray([logic.rate_move(move, current_board) for move in moves]) * 100
+        move_scores = (
+            np.asarray([logic.rate_move(move, current_board) for move in moves]) * 100
+        )
 
         best_move_index = np.argmax(move_scores)
 
-        data = tf.convert_to_tensor(np.expand_dims(np.asarray(flat_board, dtype=np.float32), 0))
+        data = tf.convert_to_tensor(
+            np.expand_dims(np.asarray(flat_board, dtype=np.float32), 0)
+        )
         goal = tf.convert_to_tensor(np.expand_dims(best_move_index, 0))
 
         # fit

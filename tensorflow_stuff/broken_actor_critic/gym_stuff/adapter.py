@@ -5,7 +5,6 @@ import numpy as np
 import pygame
 from gym import spaces
 
-from config import n_tiles, board_width
 from ui.config import dis_x
 
 

@@ -12,6 +12,7 @@ from config import (
     game_end_delay,
     frame_delay, step_limit,
 )
+from ui.progress_bar import print_progress_bar
 from ui.ui import UI
 
 
@@ -20,6 +21,8 @@ def exit_smoothly():
 
 
 def reset():
+    global game_number
+    game_number += 1
     board_manager.reset()
     controller.reset()
 
@@ -32,13 +35,14 @@ board_manager = BoardManager()
 # controller: BaseController = LWalk()
 controller: BaseController = TheAbominable0(board_manager)
 
+game_number = 0
 step = 0
 while True:
     try:
         if step >= step_limit:
+            print(f"failed to finish on game {game_number + 1}: ")
             reset()
             step = 0
-        step += 1
 
         controller_move = controller.move()
         if controller_move:
@@ -50,6 +54,9 @@ while True:
             )
             if ui.check_if_terminated():
                 exit_smoothly()
+        else:
+            # only works when starting from terminal
+            print_progress_bar(step, step_limit, prefix=f"game {game_number + 1}:")
 
         if board_manager.has_game_ended(controller.get_current_position()):
             if ui:
@@ -58,7 +65,9 @@ while True:
             step = 0
         # elif ui:
         #     time.sleep(frame_delay)
+
+        step += 1
     except Exception as e:
-        print(e)
+        print(f"{e} on game {game_number + 1}: ")
         reset()
         step = 0

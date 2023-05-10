@@ -143,3 +143,5 @@ Session.vim
 .project
 .favorites.json
 .settings/
+
+**/checkpoints

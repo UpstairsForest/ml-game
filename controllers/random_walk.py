@@ -13,13 +13,21 @@ class RandomWalk(LWalk):
         def random_adjacent_tile() -> Position:
             direction = random.randint(0, 3)
             if direction == 0:
-                return Position(x=self.current_position.x - 1, y=self.current_position.y)
+                return Position(
+                    x=self.current_position.x - 1, y=self.current_position.y
+                )
             if direction == 1:
-                return Position(x=self.current_position.x + 1, y=self.current_position.y)
+                return Position(
+                    x=self.current_position.x + 1, y=self.current_position.y
+                )
             if direction == 2:
-                return Position(x=self.current_position.x, y=self.current_position.y + 1)
+                return Position(
+                    x=self.current_position.x, y=self.current_position.y + 1
+                )
             if direction == 3:
-                return Position(x=self.current_position.x, y=self.current_position.y - 1)
+                return Position(
+                    x=self.current_position.x, y=self.current_position.y - 1
+                )
 
         _move = Move(self.current_position, random_adjacent_tile())
         while not logic.is_move_valid(_move):

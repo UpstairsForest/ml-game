@@ -4,7 +4,6 @@ from models.game_models import Position, Path, Move
 
 
 class BaseController(ABC):
-
     def move(self) -> Move:
         raise NotImplemented
 
@@ -13,3 +12,9 @@ class BaseController(ABC):
 
     def get_actor_path(self) -> Path:
         raise NotImplemented
+
+    def reset(self):
+        raise NotImplemented
+
+    def save(self):
+        pass

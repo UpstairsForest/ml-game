@@ -15,3 +15,6 @@ class BaseController(ABC):
 
     def reset(self):
         raise NotImplemented
+
+    def save(self):
+        pass

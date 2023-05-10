@@ -86,14 +86,9 @@ class TheAbominable0(LWalk):
 
         data = tf.convert_to_tensor(np.expand_dims(np.asarray(flat_board, dtype=np.float32), 0))
         goal = tf.convert_to_tensor(np.expand_dims(best_move_index, 0))
-        cp_callback = tf.keras.callbacks.ModelCheckpoint(
-            filepath=self._checkpoint_path,
-            verbose=0,
-            save_weights_only=True,
-        )
 
         # fit
-        self._model.fit(data, goal, epochs=3, verbose=0, callbacks=[cp_callback])
+        self._model.fit(data, goal, epochs=3, verbose=0)
         # predict
         prediction = self._model.predict(data, verbose=0)
         predicted_move: Move = moves[np.argmax(prediction)]
@@ -120,3 +115,6 @@ class TheAbominable0(LWalk):
             Square.COIN: -2,
         }
         return square_map[square]
+
+    def save(self):
+        self._model.save_weights(self._checkpoint_path)

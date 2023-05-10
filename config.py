@@ -1,5 +1,5 @@
 # speeds
-game_end_delay = 1  # s
+game_end_delay = 0.3  # s
 frame_delay = 0.3  # s
 
 # board
@@ -9,3 +9,6 @@ n_coins = 0
 
 # in case the abomination gets stuck
 step_limit = board_width * 5
+
+# how frequently model is saved
+model_save_interval = 10

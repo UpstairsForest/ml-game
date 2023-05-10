@@ -40,7 +40,9 @@ while True:
             step = 0
         step += 1
 
-        board_manager.update_actor_position(controller.move())
+        controller_move = controller.move()
+        if controller_move:
+            board_manager.update_actor_position(controller_move)
         if ui:
             ui.draw(
                 board=board_manager.get_current_board(),

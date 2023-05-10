@@ -1,6 +1,6 @@
 import os.path
 from dataclasses import replace
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import tensorflow as tf
@@ -15,9 +15,10 @@ from models.game_models import Move, Position, Square
 class TheAbominable0(LWalk):
     """Basically tries to recreate the reward system of the game"""
 
-    model: tf.keras.Model
     board_manager: BoardManager
-    checkpoint_path = os.path.join(
+
+    _model: tf.keras.Model
+    _checkpoint_path = os.path.join(
         os.getcwd(), f"fixtures/checkpoints/the_abominable_0_bw{board_width}/cp.ckpt"
     )
 
@@ -27,27 +28,27 @@ class TheAbominable0(LWalk):
         super().__init__()
 
         # layers
-        self.model = tf.keras.Sequential(
+        self._model = tf.keras.Sequential(
             [
                 tf.keras.layers.Dense(128, activation="relu"),
                 tf.keras.layers.Dense(4),  # the number of possible moves
             ]
         )
         # compile
-        self.model.compile(
+        self._model.compile(
             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
             optimizer="adam",
             metrics=["accuracy"],
         )
         # get data if exists
         try:
-            self.model.load_weights(
-                tf.train.latest_checkpoint(os.path.dirname(self.checkpoint_path))
+            self._model.load_weights(
+                tf.train.latest_checkpoint(os.path.dirname(self._checkpoint_path))
             )
         except Exception as e:
             print(f"Failed to load weights:\n{e}")
 
-    def move(self) -> Move:
+    def move(self) -> Optional[Move]:
         # get training data for current state:
         # n*n flattened board
         flat_board = []
@@ -73,31 +74,29 @@ class TheAbominable0(LWalk):
                 end=Position(x=self.current_position.x, y=self.current_position.y - 1),
             ),
         ]
-        move_scores = []
-        for i, move in enumerate(moves):
-            if logic.is_move_valid(move):
-                move_scores.append(logic.rate_move(move, self.board_manager.get_current_board()))
-            else:
-                moves.pop(i)
+        current_board = self.board_manager.get_current_board()
+        move_scores = [logic.rate_move(move, current_board) for move in moves]
 
         best_move_index = np.argmax(move_scores)
 
         data = np.expand_dims(np.asarray(flat_board, dtype=np.float32), 0)
         goal = np.expand_dims(best_move_index, 0)
         cp_callback = tf.keras.callbacks.ModelCheckpoint(
-            filepath=self.checkpoint_path,
+            filepath=self._checkpoint_path,
             verbose=0,
             save_weights_only=True,
         )
 
         # fit
-        self.model.fit(data, goal, epochs=3, verbose=0, callbacks=[cp_callback])
+        self._model.fit(data, goal, epochs=3, verbose=0, callbacks=[cp_callback])
         # predict
-        prediction_model = tf.keras.Sequential([self.model, tf.keras.layers.Softmax()])
+        prediction_model = tf.keras.Sequential([self._model, tf.keras.layers.Softmax()])
         prediction = prediction_model.predict(data, verbose=0)
         predicted_move: Move = moves[np.argmax(prediction)]
 
         # update controller-related fields
+        if not logic.is_move_valid(predicted_move):
+            return None
         self.current_position = predicted_move.end
         self.actor_path.append(self.current_position)
         return predicted_move

@@ -28,15 +28,19 @@ class TheAbominable0(LWalk):
         super().__init__()
 
         # layers
+        # The model is compiled complete from start
+        # rather than extended with Softmax on each move to avoid retracing, potentially
+        # at least tf complains less
         self._model = tf.keras.Sequential(
             [
                 tf.keras.layers.Dense(128, activation="relu"),
                 tf.keras.layers.Dense(4),  # the number of possible moves
+                tf.keras.layers.Softmax(),
             ]
         )
         # compile
         self._model.compile(
-            loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+            loss=tf.keras.losses.SparseCategoricalCrossentropy(),
             optimizer="adam",
             metrics=["accuracy"],
         )
@@ -79,8 +83,8 @@ class TheAbominable0(LWalk):
 
         best_move_index = np.argmax(move_scores)
 
-        data = np.expand_dims(np.asarray(flat_board, dtype=np.float32), 0)
-        goal = np.expand_dims(best_move_index, 0)
+        data = tf.convert_to_tensor(np.expand_dims(np.asarray(flat_board, dtype=np.float32), 0))
+        goal = tf.convert_to_tensor(np.expand_dims(best_move_index, 0))
         cp_callback = tf.keras.callbacks.ModelCheckpoint(
             filepath=self._checkpoint_path,
             verbose=0,
@@ -90,8 +94,7 @@ class TheAbominable0(LWalk):
         # fit
         self._model.fit(data, goal, epochs=3, verbose=0, callbacks=[cp_callback])
         # predict
-        prediction_model = tf.keras.Sequential([self._model, tf.keras.layers.Softmax()])
-        prediction = prediction_model.predict(data, verbose=0)
+        prediction = self._model.predict(data, verbose=0)
         predicted_move: Move = moves[np.argmax(prediction)]
 
         # update controller-related fields
